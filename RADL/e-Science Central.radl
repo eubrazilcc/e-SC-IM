@@ -38,18 +38,30 @@ configure esc_server (
 @end
 )
 
-configure engine (
+configure engine_init (
 @begin
 ---
- - pre_tasks:
+- tasks:
     - local_action: apt name=unzip state=present update_cache=yes
     - local_action: get_url url=https://github.com/eubrazilcc/e-SC-IM/raw/master/ansible-role-esc-engine.zip dest=/tmp/esc-engine.zip
     - local_action: file path=/etc/ansible/roles state=directory
     - local_action: unarchive src=/tmp/esc-engine.zip dest=/etc/ansible/roles
- - roles:
+@end
+)
+
+configure engine (
+@begin
+---
+- roles:
     - esc-engine
 @end
 )
 
 deploy esc_server 1
 deploy engine @input.VMs@
+
+contextualize (
+    system esc_server configure esc_server step 1
+    system engine configure engine_init step 1
+    system engine configure engine step 2
+)
