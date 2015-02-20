@@ -1,0 +1,94 @@
+---
+# e-Science Central
+# Copyright (C) 2008-2015 School of Computing Science, Newcastle University
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# version 2 as published by the Free Software Foundation at:
+# http://www.gnu.org/licenses/gpl-2.0.html
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA.
+
+- name: Install Java 1.7 and some basic dependencies
+  apt: name={{ item }} state=present update_cache=yes
+  with_items:
+    - unzip
+    - openjdk-7-jre-headless
+
+- name: Add group "esc"
+  group: name=esc
+
+- name: Add the user representing e-SC engine
+  user: name=esc-eng group=esc home={{ home_dir }}
+
+- name: Create working directories
+  file: path={{ item }} state=directory owner=esc-eng group=esc
+  with_items:
+    - "{{ home_dir }}/log"
+    - "{{ home_dir }}/etc"
+    - /mnt/workflow
+
+- name: Extract engine to the installation directory
+  unarchive: src=engine-package.zip dest={{ home_dir }} creates={{ home_dir }}/lib/workflow-engine-{{ version }}.jar
+  notify: restart engine
+
+# Set the location of the e-SC server
+- debug: var=server_address
+- set_fact: server_address='localhost'
+  when: "server_address is not defined and 'esc_server' in group_names"
+- set_fact: server_address={{ item }}
+  with_items: groups.esc_server
+  when: "server_address is not defined and 'esc_server' not in group_names"
+
+- name: Copy the engine's init script
+  template: src=init.d/eSC-engine dest=/etc/init.d/eSC-engine mode=0755
+
+#
+# [TODO] This isn't ideal because every ansible run will cause engine restart.
+# To avoid this step engine needs to be changed, so it doesn't
+# always overwrites its configuration file
+#
+- name: Make sure the engine service is stopped 
+  # otherwise the engine will overwrite the config.xml file
+  service: name=eSC-engine state=stopped
+
+- name: Copy engine config XML
+  template: src=engine.xml dest={{ home_dir }}/etc
+  notify: restart engine
+
+- name: Copy engine's service startup script
+  copy: src=startservice.sh dest={{ home_dir }}/bin
+
+- name: Change ownership of eSC engine installation
+  file: path={{ home_dir }}/ owner=esc-eng group=esc state=directory recurse=yes
+
+- name: Change mode of startup scripts
+  shell: chmod a+x {{ home_dir }}/bin/*.sh
+
+- name: Copy init.d config
+  template: src=engine.conf dest={{ home_dir }}/etc
+  notify: restart engine
+
+- name: Allow engine to install system-wide packages
+  copy: src=esc-eng.apt.sudoers dest=/etc/sudoers.d/
+  when: allow_sudo_apt|default(false)
+
+# NOTE! There's a little hack below that will work on Ubuntu and systems with
+# compatible service management. Ansible 'service' module cannot set priorities
+# in the case system works in, so called, legacy mode. A default Ubuntu 14.04
+# installation works in the legacy mode due to some old services. This forces
+# us to set priority manually.
+#
+#- name: Enable eSC-engine to be started at boot
+#  service: name=eSC-engine enabled=yes
+- name: Removing eSC-engine service
+  command: /usr/sbin/update-rc.d -f eSC-engine remove
+- name: Recreating eSC-engine service
+  command: /usr/sbin/update-rc.d eSC-engine defaults 25

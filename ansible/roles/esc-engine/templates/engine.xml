@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+  DO NOT EDIT! This file is managed by Ansible.
+
+-->
+<PipelineDocument>
+    <Data>
+        <Parameter AutoAdd="false" Name="Properties" Type="XmlDataStore">
+            <Parameter AutoAdd="false" Name="SystemProperties" Type="XmlDataStore">
+                <Parameter AutoAdd="true" Name="Workflow" Type="XmlDataStore">
+                    <Parameter Name="MaxWorkflowCount"                 Value="{{ max_invocation_threads }}"  Type="Integer" Description="Maximum number of workflow jobs this engine will take from the queue at any time" />
+                    <Parameter Name="MaxConcurrentServiceInvocations"  Value="{{ max_invocation_threads }}"  Type="Integer" Description="Maximum number of concurrent workflow services that are allowed to execute at any time" />
+
+                    <Parameter Name="DefaultMaxPermSize"    Value="256"  Type="Integer" Description="Maximum Java PermGen size in megabytes" />
+                    <Parameter Name="DefaultVMSize"         Value="512"  Type="Integer" Description="Maximum JavaVM size in megabytes" />
+
+                    <Parameter Name="InvocationStorageDir"  Value="/mnt/workflow/invocations" Type="String" Description="Directory to use as workflow scratch space" />
+                </Parameter>
+                <Parameter AutoAdd="true" Name="Engine" Type="XmlDataStore">
+                    <Parameter Name="APIHost"     Value="{{server_address}}"  Type="String" Description="Name of the server providing API service" />
+                    <Parameter Name="APIPort"     Value="8080"  Type="Integer" Description="Port on the server providing API service" />
+                    <Parameter Name="APIContext"  Value="/workflow"  Type="String" Description="Base URL on the server providing API service" />
+
+                    <Parameter Name="ServiceLibraryDir"  Value="/mnt/workflow/library" Type="String" Description="Directory to store downloaded services in" />
+                    <Parameter Name="TemporaryDir"       Value="/mnt/workflow/temp" Type="String" Description="Directory to store temporary files; if unset a system dependent default temporary-file directory will be used" />
+
+                    <Parameter Name="OverriddenIP"             Value="127.0.0.1" Type="String" Description="IP address to use when setting the host ID in workflow invocations" />
+                    <Parameter Name="OverrideDetectedLocalIP"  Value="false" Type="Boolean" Description="Override the detected local IP address when setting the host ID in workflow invocations" />
+
+                    <Parameter Name="AllowDebugger"  Value="true" Type="Boolean" Description="Are workflow blocks allowed to operate in Java debugging mode" />
+
+                    <Parameter Name="SingleVMDebuggingListenPort"  Value="6006" Type="Integer" Description="The port on which the 'single VM process' waits for a debugging client to connect" />
+                    <Parameter Name="SingleVMDebuggingSuspended"   Value="false" Type="Boolean" Description="Should the 'single VM' process suspend waiting for a debugger to connect" />
+                    <Parameter Name="SingleVMPerWorkflow"          Value="true" Type="Boolean" Description="Should the engine run all of a workflows services in a single VM"/>
+                    <Parameter Name="SingleVMCreationTimeout"      Value="60" Type="Integer" Description="Length of time (in seconds) to wait for the single service VM to start" />
+
+                    <Parameter Name="AllowRMI"         Value="true" Type="Boolean" Description="Set to allow the server to attempt RMI communications" />
+                    <Parameter Name="RMIRegistryPort"  Value="2199" Type="Integer" Description="Port of the RMI registry on the server" />
+
+                    <Parameter Name="UseJMSToSendUpdates"     Value="true" Type="Boolean" Description="Should the API clients use JMS to send non-blocking updates where possible" />
+                    <Parameter Name="EnableInformationCache"  Value="true" Type="Boolean" Description="Should the engine enable the various information caches to reduce server calls" />
+                    <Parameter Name="GatherSystemData"        Value="true" Type="Boolean" Description="Should the engine attempt to gather system data" />
+                </Parameter>
+                <Parameter AutoAdd="true" Name="Performance" Type="XmlDataStore">
+                    <Parameter Name="Enabled"  Value="true" Type="Boolean" />
+
+                    <Parameter Name="JMSServerHost"  Value="{{server_address}}" Type="String" />
+                    <Parameter Name="JMSServerPort"  Value="5445" Type="Integer" />
+                    <Parameter Name="JMSUser"        Value="connexience" Type="String" />
+                    <Parameter Name="JMSPassword"    Value="1234" Type="String" />
+
+                    <Parameter Name="EngineDataSampleInterval"  Value="500" Type="Integer" />
+                    <Parameter Name="EngineDataSendInterval"    Value="5000" Type="Integer" />
+                    <Parameter Name="EngineDataFilterConstant"  Value="0.8" Type="Double" />
+                    <Parameter Name="SendEngineDataWhenIdle"    Value="true" Type="Boolean" />
+                </Parameter>
+                <Parameter AutoAdd="true" Name="JMS" Type="XmlDataStore">
+                    <Parameter Name="JMSServer"    Value="{{server_address}}"   Type="String" Description="JMS server address" />
+                    <Parameter Name="JMSPort"      Value="5445"        Type="Integer" Description="JMS communication port" />
+                    <Parameter Name="JMSUser"      Value="connexience" Type="String" Description="JMS user" />
+                    <Parameter Name="JMSPassword"  Value="1234"        Type="String" Description="JMS password" />
+
+                    <Parameter Name="JMSQueue"                Value="Workflow"  Type="String" Description="Name of the JMS queue that this engine listens to" />
+                    <Parameter Name="JMSControlMessageTopic"  Value="WorkflowControl"  Type="String" />
+                    <Parameter Name="JMSManagerMessageQueue"  Value="WorkflowManagerQueue"  Type="String" Description="Queue used to send back status messages" />
+                    <Parameter Name="JMSConsumerWindowSize"   Value="0"  Type="Integer" />
+                </Parameter>
+                <Parameter AutoAdd="true" Name="Provenance" Type="XmlDataStore">
+                    <Parameter Name="Enabled" Type="Boolean" Value="true" Description="Should JMS Messages be sent to the provenance server" />
+
+                    <Parameter Name="JMSServerHost"  Value="{{server_address}}"  Type="String" Description="Host of the JMS Server" />
+                    <Parameter Name="JMSServerPort"  Value="5445"  Type="Integer" Description="Port of the JMS Server" />
+                    <Parameter Name="JMSUser"        Value="connexience"  Type="String" Description="Username of the JMS Queue" />
+                    <Parameter Name="JMSPassword"    Value="1234"  Type="String" Description="Password for the JMS Queue" />
+                </Parameter>
+                <Parameter AutoAdd="true" Name="Security" Type="XmlDataStore">
+                    <Parameter Name="EnableWorkflowIsolation"      Value="false" Type="Boolean" Description="Should workflow invocations be isolated from each other"/>
+                    <Parameter Name="KillInvocationUserProcesses"  Value="true"  Type="Boolean" Description="Should all of the invocation users processes be killed when an invocation finishes"/>
+
+                    <Parameter Name="EngineGroup"  Value="staff" Type="String" Description="Group that the workflow engine uses to access invocation directories"/>
+
+                    <Parameter Name="InvocationUserIDStart"  Value="1000"     Type="Integer" Description="Prefix to use when creating workflow user names" />
+                    <Parameter Name="InvocationUserPrefix"   Value="wfuser"   Type="String"  Description="Prefix to use when creating workflow user names" />
+                    <Parameter Name="InvocationGroupID"      Value="400"      Type="Integer" Description="Unix group GID for invocation user primary group" />
+                    <Parameter Name="InvocationGroup"        Value="wfusers"  Type="String"  Description="Group name for invocation users" />
+                </Parameter>
+            </Parameter>
+        </Parameter>
+    </Data>
+</PipelineDocument>
