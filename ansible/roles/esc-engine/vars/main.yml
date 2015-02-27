@@ -35,5 +35,4 @@ max_invocation_threads: 4
 #
 # Whether to allow engine to sudo to do 'apt-get install' for OS-wide packages.
 #
-#allow_sudo_apt: True
-
+allow_sudo_apt: True
