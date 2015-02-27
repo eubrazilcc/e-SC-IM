@@ -77,7 +77,7 @@
   notify: restart engine
 
 - name: Allow engine to install system-wide packages
-  copy: src=esc-eng.apt.sudoers dest=/etc/sudoers.d/
+  copy: src=esc-eng_apt_sudoers dest=/etc/sudoers.d/ mode=0440
   when: allow_sudo_apt|default(false)
 
 # NOTE! There's a little hack below that will work on Ubuntu and systems with
