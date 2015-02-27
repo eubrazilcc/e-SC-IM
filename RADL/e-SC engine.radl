@@ -17,10 +17,10 @@ configure engine_init (
 ---
 - tasks:
     - local_action: apt name=unzip state=present update_cache=yes
-    - local_action: get_url url=https://github.com/eubrazilcc/e-SC-IM/archive/master.zip dest=/tmp/esc-engine.zip
-    - local_action: unarchive src=/tmp/esc-engine.zip dest=/tmp
+    - local_action: get_url url=https://github.com/eubrazilcc/e-SC-IM/archive/master.zip dest=/tmp/eSC-master.zip
+    - local_action: unarchive src=/tmp/eSC-master.zip dest=/tmp copy=no
     - local_action: file path=/etc/ansible/roles state=directory
-    - local_action: command mv /tmp/e-SC-IM-master/ansible/roles/* /etc/ansible/roles
+    - local_action: shell mv /tmp/e-SC-IM-master/ansible/roles/* /etc/ansible/roles
 @end
 )
 
@@ -28,7 +28,7 @@ configure engine (
 @begin
 ---
 - roles:
-    - { role: esc-engine, server_address: eubrazilcc-esc.i3m.upv.es }
+    - { role: esc-engine, server_address: eubrazilcc-esc.i3m.upv.es, allow_sudo_apt: True }
 @end
 )
 
