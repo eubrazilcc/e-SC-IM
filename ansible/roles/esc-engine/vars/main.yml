@@ -36,3 +36,8 @@ max_invocation_threads: 4
 # Whether to allow engine to sudo to do 'apt-get install' for OS-wide packages.
 #
 #allow_sudo_apt: True
+
+#
+# Place where the e-SC engine package is located
+#
+engine_dist_dir: ../../../../../code/webflow/WorkflowEngine/target/

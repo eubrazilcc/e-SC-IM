@@ -36,7 +36,7 @@
     - /mnt/workflow
 
 - name: Extract engine to the installation directory
-  unarchive: src=engine-package.zip dest={{ home_dir }}
+  unarchive: src={{ engine_dist_dir}}/engine-package.zip dest={{ home_dir }}
   notify: restart engine
 
 # Set the location of the e-SC server

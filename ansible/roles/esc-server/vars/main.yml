@@ -22,7 +22,21 @@
 #
 # The ear file of the performance and provenance monitoring server.
 #
-performance_monitoring_ear: code/applications/monitorserver/ear/target/monitor.ear
+#performance_monitoring_ear: code/applications/monitorserver/ear/target/monitor.ear
+# Location of the performance monitor ear file
+#
+#performance_monitor_dist_dir: ../../code/applications/monitorserver/ear/target/
+performance_monitor_dist_dir: ../../../../../code/applications/monitorserver/ear/target/
+
+#
+# Location of the jboss package
+#
+jboss_dist_dir: ../../../../../documentation/buildAndInstall
+
+#
+# Location of the e-SC ear file
+#
+inkspot_dist_dir: ../../../../../code/server/Ear/target
 
 #
 # The current version of the server code.
