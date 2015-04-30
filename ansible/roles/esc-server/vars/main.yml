@@ -1,0 +1,42 @@
+---
+# e-Science Central
+# Copyright (C) 2008-2015 School of Computing Science, Newcastle University
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# version 2 as published by the Free Software Foundation at:
+# http://www.gnu.org/licenses/gpl-2.0.html
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA.
+
+#### Docs back-references:
+#### /deployment/ansible/README.md
+
+#
+# The ear file of the performance and provenance monitoring server.
+#
+performance_monitoring_ear: code/applications/monitorserver/ear/target/monitor.ear
+
+#
+# The current version of the server code.
+# [TODO] This is not currently used. Needed for the integration with CI
+#
+version: 3.1-SNAPSHOT
+
+# The port on which the database server runs.
+# [TODO] This should be taken from the db-init/db roles
+#
+# Note that database server address is taken from the inventory
+db_server_port: 5432
+
+# This is the name of the server as published by the RMI registry.
+# The name should be visible from engine machines
+server_port: 8080
+

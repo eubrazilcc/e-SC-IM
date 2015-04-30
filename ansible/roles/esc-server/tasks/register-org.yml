@@ -1,0 +1,14 @@
+---
+- name: Make sure that the server is running
+  service: name=jboss-as state=started
+
+- name: Register the e-SC organisation -- prepare registration data
+  template: src=form-data.j2 dest=/tmp/form-args.txt
+
+- name: Register the e-SC organisation -- do the registration
+  script: orgRegistration.sh /tmp/form-args.txt
+
+- name: Register the e-SC organisation -- remove temporary files
+  file: name=/tmp/form-args.txt state=absent
+
+

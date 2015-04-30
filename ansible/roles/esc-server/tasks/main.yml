@@ -1,0 +1,120 @@
+---
+# e-Science Central
+# Copyright (C) 2008-2015 School of Computing Science, Newcastle University
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# version 2 as published by the Free Software Foundation at:
+# http://www.gnu.org/licenses/gpl-2.0.html
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA.
+
+# Tasks with some basic preparations to install the server
+#
+- name: Install Java 1.7 and some basic dependencies
+  apt: name={{item}} state=present update_cache=yes
+  with_items:
+    - unzip
+    - openjdk-7-jre-headless
+    - zip
+    - groff
+    - graphviz
+    - pdfjam
+
+- name: Add group "esc"
+  group: name=esc
+
+- name: Add the user representing e-SC server
+  user: name={{ jboss_user }} group=esc home={{ jboss_home_dir }}
+
+- name: Create working directories
+  file: path=/mnt/server/tmp state=directory owner={{ jboss_user }} group=esc
+- file: path={{ RegInfo_StorageFolder }} state=directory owner={{ jboss_user }} group=esc
+
+
+# Tasks to prepare jBoss AS for the deployment of e-Science Central server
+#
+
+- name: Extract jBoss AS to the installation directory
+# The source directory should be changed to local ansible 'files' once this approach is widely used by everybody
+  unarchive: src=../../../../../documentation/buildAndInstall/jboss-as-7.1.3.final.zip  dest={{ jboss_home_dir }} creates={{ jboss_home_dir }}/jboss-modules.jar
+
+- name: Copy modules and basic configuration for e-SC server
+  copy: src=jboss7/ dest={{ jboss_home_dir }}
+
+- name: Overwrite standalone config with {{ server_address }}
+  template: src=standalone.conf dest={{ jboss_home_dir }}/bin
+
+# Set the location of the database server
+- set_fact: db_server_address='localhost'
+  when: "'db_server' in group_names"
+- set_fact: db_server_address={{ item }}
+  with_items: groups.db_server
+  when: "'db_server' not in group_names"
+
+- name: Overwrite standalone XML descriptor
+  # This template requires that variable db_server_address is set correctly
+  template: src=standalone.xml dest={{ jboss_home_dir }}/standalone/configuration
+  notify: restart jboss-as
+
+- name: Change ownership of jBoss AS installation
+  file: path={{ jboss_home_dir }}/ owner={{ jboss_user }} group=esc state=directory recurse=yes
+
+- name: Change mode of startup scripts
+  shell: chmod a+x {{ jboss_home_dir }}/bin/*.sh
+  
+- name: Copy inkspot.ear to jBoss standalone deployment directory
+  copy: src=../../../../../code/server/Ear/target/inkspot.ear dest={{ jboss_home_dir }}/standalone/deployments
+  # No need to notify jboss, it monitors the deployments directory itself
+
+# Hack/Bug: path in the stat module is different than in the copy module below
+- name: Check whether monitorserver exists
+  stat: path=../../{{ performance_monitoring_ear }} get_checksum=no
+  register: perfprov
+  sudo: no
+  delegate_to: localhost
+
+- name: Copy monitorserver.ear to jBoss standalone deployment directory
+  copy: src=../../../../../{{ performance_monitoring_ear }} dest={{ jboss_home_dir }}/standalone/deployments
+  when: perfprov.stat.exists
+
+
+# Tasks to run jboss-as as a system service
+#
+- name: Copy the jBoss service config
+  file: path=/etc/jboss-as state=directory
+- template: src=jboss-as.conf dest=/etc/jboss-as/jboss-as.conf
+  notify: restart jboss-as
+
+- name: Copy the service init script
+  copy: src=init.d/jboss-as dest=/etc/init.d/jboss-as mode=0755
+
+- name: Enable the jboss-as service to be started at boot
+  service: name=jboss-as enabled=yes
+
+
+# Tasks to register an e-SC organisation
+#
+- include: register-org.yml
+  when: isJbossStartAllowed|default(True)
+
+
+# Tasks to prepare the maven property file
+#
+- name: Create the inkspot directory locally
+  file: state=directory path=~/.inkspot
+  sudo: no
+  delegate_to: localhost
+
+- name: Create the maven properties file locally
+  template: src=maven.props dest=~/.inkspot/maven.props
+  sudo: no
+  delegate_to: localhost
+

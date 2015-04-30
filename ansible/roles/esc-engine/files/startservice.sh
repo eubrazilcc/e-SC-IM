@@ -5,10 +5,6 @@
 echo Options $1 $2 $3
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-for i in $DIR/../lib/*.jar; do
-  CP="$CP:$i"
-done
-
 # Set default config
 #
 LOGCONF="-Dlog4j.configuration=log4j-info.properties"
@@ -43,7 +39,7 @@ do
   esac
 done
 
-java $DEBUG $LIBDIR $LOGCONF -cp $CP com.connexience.server.workflow.cloud.CloudWorkflowEngine $ENGINE_CONF &
+java $DEBUG $LIBDIR $LOGCONF -cp "$DIR/../lib/*" com.connexience.server.workflow.cloud.CloudWorkflowEngine $ENGINE_CONF &
 ENGINE_PID=$!
 
 echo Engine config: $ENGINE_CONF

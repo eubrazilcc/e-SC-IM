@@ -1,0 +1,9 @@
+#
+# DO NOT EDIT! This file is managed by Ansible.
+#
+
+serverURL=http://{{ groups.esc_server[0] }}:{{ server_port }}/APIServer
+hostname={{ groups.esc_server[0] }}
+port={{ server_port }}
+username={{ RegInfo_UserName }}
+password={{ RegInfo_Password }}

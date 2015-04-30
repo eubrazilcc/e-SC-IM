@@ -1,0 +1,24 @@
+---
+- name: Install dependencies
+  apt: name={{ item }} state=present update_cache=yes
+  with_items:
+    - nginx-core
+
+- name: Remove default configuration
+  file: path=/etc/nginx/sites-enabled/default state=absent
+  notify: restart nginx
+
+- name: Copy certificate and key
+  copy: src={{ ssl_certificate_file }} dest=/etc/nginx/certs/
+- copy: src={{ ssl_certificate_key_file}} dest=/etc/nginx/certs/
+
+- set_fact: internal_server_address='localhost'
+  when: "'esc_server' in group_names"
+- set_fact: internal_server_address={{ item }}
+  with_items: groups.esc_server
+  when: "'esc_server' not in group_names"
+
+- name: Configure nginx to access the server
+  template: src=esc.conf dest=/etc/nginx/conf.d/esc.conf
+  notify: restart nginx
+

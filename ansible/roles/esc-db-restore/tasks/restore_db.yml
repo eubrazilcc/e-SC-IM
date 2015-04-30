@@ -1,0 +1,28 @@
+---
+- name: Generate a temporary name for the dump file
+  command: /bin/mktemp -t {{ db_name }}-XXXX.dump
+  register: dump_file
+
+- name: Copy in database {{ db_name }} dump data
+  copy: src={{ dump_directory}}/{{ db_name }}.dump dest={{ dump_file.stdout }}
+
+- name: Drop database {{ db_name }}
+  postgresql_db: name={{ db_name }} state=absent
+
+- name: Create the fresh {{ db_name }} database
+  postgresql_db: name={{ db_name }} encoding='UTF-8' owner={{ db_user }} state=present
+
+- name: Create dump TOC without plpgsql extension to avoid errors on restore
+  shell: /usr/bin/pg_restore -l {{ dump_file.stdout }} | grep -v "plpgsql" > {{ dump_file.stdout }}.toc
+
+- name: Restore {{ db_name }} database from the dump 
+  command: /usr/bin/pg_restore -h localhost -d {{ db_name }} -U {{ db_user }} -L {{ dump_file.stdout }}.toc {{ dump_file.stdout }}
+  environment:
+    PGPASSWORD: "{{ db_password }}"
+
+- name: Removing temporary dump file
+  file: path={{ dump_file.stdout }} state=absent
+
+- name: Removing temporary toc file
+  file: path={{ dump_file.stdout }}.toc state=absent
+

@@ -1,0 +1,5 @@
+---
+- { include: restore_db.yml, db_name: connexience }
+- { include: restore_db.yml, db_name: logeventsdb }
+- { include: restore_db.yml, db_name: performancedb }
+

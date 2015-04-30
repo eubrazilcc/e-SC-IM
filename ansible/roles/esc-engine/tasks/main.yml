@@ -36,7 +36,7 @@
     - /mnt/workflow
 
 - name: Extract engine to the installation directory
-  unarchive: src=engine-package.zip dest={{ home_dir }} creates={{ home_dir }}/lib/workflow-engine-{{ version }}.jar
+  unarchive: src=engine-package.zip dest={{ home_dir }}
   notify: restart engine
 
 # Set the location of the e-SC server
@@ -48,7 +48,7 @@
   when: "server_address is not defined and 'esc_server' not in group_names"
 
 - name: Copy the engine's init script
-  template: src=init.d/eSC-engine dest=/etc/init.d/eSC-engine mode=0755
+  copy: src=init.d/eSC-engine dest=/etc/init.d/eSC-engine mode=0755
 
 #
 # [TODO] This isn't ideal because every ansible run will cause engine restart.
@@ -58,6 +58,12 @@
 - name: Make sure the engine service is stopped 
   # otherwise the engine will overwrite the config.xml file
   service: name=eSC-engine state=stopped
+  register: engine_status
+
+- name: If the engine was running, make sure it is started afterwards
+  debug: msg="Engine will be restarted"
+  notify: restart engine
+  when: engine_status.changed
 
 - name: Copy engine config XML
   template: src=engine.xml dest={{ home_dir }}/etc

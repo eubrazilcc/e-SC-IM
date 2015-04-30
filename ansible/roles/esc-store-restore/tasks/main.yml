@@ -1,0 +1,23 @@
+---
+# Restore the local fs storage
+#
+- name: Create the storage directory
+  file: path={{ RegInfo_StorageFolder }} state=directory owner={{ jboss_user }} group=esc
+
+- name: Restore the storage from the archive in {{ dump_directory }}
+  unarchive: src={{ dump_directory }}/eSC-blobStore.tgz dest={{ RegInfo_StorageFolder }} owner={{ jboss_user }} group=esc
+
+# Restore the neo4j database
+#
+- name: Create the neo4j database directory
+  file: path={{ jboss_home_dir }}/standalone/neo4j state=directory owner={{ jboss_user }} group=esc
+
+- name: Restore the neo4j database from the archive in {{ dump_directory }}
+  unarchive: src={{ dump_directory }}/eSC-neo4jDump.tgz dest={{ jboss_home_dir }}/standalone/neo4j/ owner={{ jboss_user }} group=esc
+
+# Start the server if needed
+#
+- name: Start the jboss service
+  service: name=jboss-as state=started
+  when: isJbossStartAllowed|default(True)
+

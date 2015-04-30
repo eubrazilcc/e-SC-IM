@@ -1,0 +1,60 @@
+---
+# e-Science Central
+# Copyright (C) 2008-2015 School of Computing Science, Newcastle University
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# version 2 as published by the Free Software Foundation at:
+# http://www.gnu.org/licenses/gpl-2.0.html
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA.
+
+#
+# This playbook can create a new instance of an existing e-SC server that
+# was captured using the site-standalone-dump playbook. Together these two 
+# playbooks can help to clone a server instance.
+#
+- hosts: all
+  gather_facts: no
+  tasks:
+    - fail: msg="The dump directory is not defined. You can use the --extra-vars command line option to set it."
+      when: dump_directory is not defined
+    - debug: msg="Certificate and key files are not defined => Nginx will not be installed on the server."
+      when: (public_server_address is not defined) or (ssl_certificate_file is not defined) or (ssl_certificate_key_file is not defined)
+
+- hosts: esc_server
+  sudo: yes
+  tasks:
+    - name: Stop the jboss service
+      service: name=jboss-as state=stopped
+      ignore_errors: yes
+
+- include: dbservers.yml
+
+- hosts: db_server
+  sudo: yes
+  roles:
+    - { role: esc-db-restore, sudo_user: postgres  }
+
+- hosts: esc_server
+  sudo: yes
+  roles:
+    - role: esc-server
+      isJbossStartAllowed: False
+    - role: esc-nginx
+      when: (public_server_address is defined) and (ssl_certificate_file is defined) and (ssl_certificate_key_file is defined)
+
+- hosts: esc_server
+  sudo: yes
+  roles:
+    - role: esc-store-restore
+
+- include: engines.yml
+
