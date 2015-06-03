@@ -66,7 +66,7 @@
   when: engine_status.changed
 
 - name: Copy engine config XML
-  template: src=engine.xml dest={{ home_dir }}/etc
+  template: src=engine.xml dest={{ home_dir }}/etc/
   notify: restart engine
 
 - name: Copy engine's service startup script
@@ -79,7 +79,7 @@
   shell: chmod a+x {{ home_dir }}/bin/*.sh
 
 - name: Copy init.d config
-  template: src=engine.conf dest={{ home_dir }}/etc
+  template: src=engine.conf dest={{ home_dir }}/etc/
   notify: restart engine
 
 - name: Allow engine to install system-wide packages
