@@ -27,6 +27,7 @@
     - groff
     - graphviz
     - pdfjam
+    - curl  # curl is needed by the registrer organisation script (not e-SC itself)
 
 - name: Add group "esc"
   group: name=esc

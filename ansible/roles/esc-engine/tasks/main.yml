@@ -36,7 +36,7 @@
     - /mnt/workflow
 
 - name: Extract engine to the installation directory
-  unarchive: src={{ engine_dist_dir}}/engine-package.zip dest={{ home_dir }}
+  unarchive: src={{ engine_dist_dir }}/engine-package.zip dest={{ home_dir }} owner=esc-eng group=esc
   notify: restart engine
 
 # Set the location of the e-SC server
@@ -66,20 +66,20 @@
   when: engine_status.changed
 
 - name: Copy engine config XML
-  template: src=engine.xml dest={{ home_dir }}/etc/
+  template: src=engine.xml dest={{ home_dir }}/etc/ group=esc owner=esc-eng
   notify: restart engine
 
 - name: Copy engine's service startup script
-  copy: src=startservice.sh dest={{ home_dir }}/bin
+  copy: src=startservice.sh dest={{ home_dir }}/bin group=esc owner=esc-eng
 
-- name: Change ownership of eSC engine installation
-  file: path={{ home_dir }}/ owner=esc-eng group=esc state=directory recurse=yes
+#- name: Change ownership of eSC engine installation
+#  file: path={{ home_dir }}/ owner=esc-eng group=esc state=directory recurse=yes
 
 - name: Change mode of startup scripts
   shell: chmod a+x {{ home_dir }}/bin/*.sh
 
 - name: Copy init.d config
-  template: src=engine.conf dest={{ home_dir }}/etc/
+  template: src=engine.conf dest={{ home_dir }}/etc/ group=esc owner=esc-eng
   notify: restart engine
 
 - name: Allow engine to install system-wide packages

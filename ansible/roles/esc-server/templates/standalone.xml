@@ -467,7 +467,7 @@
             <connector name="http" protocol="HTTP/1.1" scheme="http" socket-binding="http"/>
             <virtual-server name="default-host" enable-welcome-root="true">
                 <alias name="localhost"/>
-                <sso domain="localhost" reauthenticate="false"/>
+                <sso domain="{{ public_server_address | default('localhost') }}" reauthenticate="false"/>
             </virtual-server>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:webservices:1.1">

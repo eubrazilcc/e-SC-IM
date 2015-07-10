@@ -72,6 +72,7 @@ if [ ! -z "$JBOSS_USER" ]; then
   fi
 fi
 
+
 start() {
   echo -n "Starting $prog: "
   if [ -f $JBOSS_PIDFILE ]; then
@@ -104,26 +105,36 @@ start() {
     fi
   fi
 
+  # Start a loop that tries to detect whether the AS started successful or failed to start
+  #
   lastLogSize=0
   count=0
   launched=false
+  patternDeployed='JBAS018559.*"inkspot.ear"'
+  patternReplaced='JBAS018565.*"inkspot.ear"'
+  patternFailed='ERROR.*Exception'
 
   until [ $count -gt $STARTUP_WAIT ]
   do
     # Check the log size and if it has increased since the last time 
-    # that's good; it means jBoss is working on something and we can
-    # reset the time counter
-    logSize=$( wc -c "$JBOSS_CONSOLE_LOG" | awk '{print $1}' )
+    # that's good; it means jboss-as is working on something and we can
+    # reset the counter
+    logSize=$( wc -c < "$JBOSS_CONSOLE_LOG" )
     if [ $logSize -gt $lastLogSize ] ; then
       count=0
       lastLogSize=$logSize
+      printf "."
     fi
 
-    grep 'JBoss AS.*started in' $JBOSS_CONSOLE_LOG > /dev/null 
+    pattern=$( grep "$patternDeployed\|$patternReplaced\|$patternFailed" $JBOSS_CONSOLE_LOG )
     if [ $? -eq 0 ] ; then
-      launched=true
+      echo $pattern | grep "$patternFailed" > /dev/null
+      if [ $? -ne 0 ] ; then
+        launched=true
+      fi 
       break
     fi 
+
     sleep 1
     let count=$count+1;
   done
