@@ -1,0 +1,80 @@
+#
+# This descriptor creates a deployment of the e-SC server which is restored from
+# a dump made previously.
+# This descriptor assumes that the newly created VM are vanilla Ubuntu OS, so it
+# tries to install all dependencies.
+#
+
+network public (outbound = 'yes')
+network private ()
+
+system esc_server (
+cpu.arch='x86_64' and
+cpu.count>=2 and
+memory.size>=1536m and
+net_interface.0.connection = 'public' and
+net_interface.0.dns_name = 'esc' and
+net_interface.1.connection = 'private' and
+net_interface.1.dns_name = 'server' and
+disk.0.os.name='linux' and
+disk.0.os.flavour='ubuntu' and
+disk.0.os.version='14.04' and
+disk.0.size>=15000
+# and
+# disk.0.applications contains (name='ansible.modules.cala.esc')
+)
+
+
+configure esc_server_init (
+@begin
+---
+- vars:
+    dump_version:  20150430_072234
+    build_version: 20150430_072234
+    repo_version:  5db61669f5f4d2cf6efa7ff10207ad65102931c2
+  tasks:
+    # Get the main e-SC code
+    - local_action: get_url url=http://homepages.cs.ncl.ac.uk/jacek.cala/LVL-eSC/{{ build_version }}/inkspot.ear   dest=/tmp/{{ build_version }}
+    - local_action: get_url url=http://homepages.cs.ncl.ac.uk/jacek.cala/LVL-eSC/{{ build_version }}/monitor.ear   dest=/tmp/{{ build_version }}
+    # Get the server dump data
+    - local_action: get_url url=http://homepages.cs.ncl.ac.uk/jacek.cala/LVL-eSC/{{ dump_version }}/eSC-blobStore.tgz   dest=/tmp/{{ dump_version }}/dump
+    - local_action: get_url url=http://homepages.cs.ncl.ac.uk/jacek.cala/LVL-eSC/{{ dump_version }}/eSC-neo4jDump.tgz   dest=/tmp/{{ dump_version }}/dump
+    - local_action: get_url url=http://homepages.cs.ncl.ac.uk/jacek.cala/LVL-eSC/{{ dump_version }}/connexience.dump    dest=/tmp/{{ dump_version }}/dump
+    - local_action: get_url url=http://homepages.cs.ncl.ac.uk/jacek.cala/LVL-eSC/{{ dump_version }}/logeventsdb.dump    dest=/tmp/{{ dump_version }}/dump
+    - local_action: get_url url=http://homepages.cs.ncl.ac.uk/jacek.cala/LVL-eSC/{{ dump_version }}/performancedb.dump  dest=/tmp/{{ dump_version }}/dump
+    # Get the ansible roles that can restore the server
+    #- local_action: apt name=unzip state=present update_cache=yes
+    #- local_action: get_url url=https://github.com/eubrazilcc/e-SC-IM/raw/master/ansible-role-esc-engine.zip dest=/tmp/esc-engine.zip
+    #- local_actian: get_url url=https://github.com/eubrazilcc/e-SC-IM/archive/master.zip dest=/tmp/master.zip
+    #- local_action: unarchive src=/tmp/master.zip dest=/tmp/{{ repo_version }}/
+    #- local_action: file path=/etc/ansible/roles state=directory
+    #- local_action: command mv /tmp/{{ repo_version }}/e-SC-IM-master/ansible/roles/* /etc/ansible/roles/    
+    - local_action: command svn export --force https://github.com/eubrazilcc/e-SC-IM/trunk/ansible/roles /etc/ansible/roles
+@end
+)
+
+configure esc_server (
+@begin
+---
+- roles:
+    - esc-db-init
+    - { role: esc-db, sudo_user: postgres }
+    - { role: esc-server, isJbossStartAllowed: False }
+    - esc-store-restore
+    - { role: esc-nginx,
+        public_server_address: eubrazilcc-esc.i3m.upv.es,
+        ssl_certificate_file: eubrazilcc-esc.i3m.upv.es.cer,
+        ssl_certificate_key_file: eubrazilcc-esc.i3m.upv.es.key }
+# - roles:
+#    - esc-db-init
+#    - { role: esc-db, sudo_user: postgres }
+#    - esc-server
+@end
+)
+
+deploy esc_server 1
+
+contextualize (
+    system esc_server configure esc_server_init step 1
+    system esc_server configure esc_server step 2
+)

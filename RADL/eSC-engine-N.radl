@@ -1,0 +1,23 @@
+network private
+
+system engine_N (
+  cpu.arch='x86_64' and
+  cpu.count>=1 and
+  memory.size>=1536m and
+  net_interface.0.connection = 'private' and
+  net_interface.0.dns_name = 'engine-#N#' and
+  disk.0.os.name='linux' and
+  disk.0.os.flavour='ubuntu' and
+  disk.0.os.version='14.04'
+)
+
+configure engine_init 
+
+configure engine 
+
+deploy engine_N 1
+
+contextualize (
+    system engine_N configure engine_init step 1
+    system engine_N configure engine step 2
+)
