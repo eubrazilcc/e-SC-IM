@@ -34,9 +34,11 @@ configure esc_server_init (
     #repo_version:  5db61669f5f4d2cf6efa7ff10207ad65102931c2
   tasks:
     # Get the main e-SC code
+    - local_action: file path=/tmp/{{ build_version }} state=directory
     - local_action: get_url url=http://homepages.cs.ncl.ac.uk/jacek.cala/LVL-eSC/builds/{{ build_version }}/inkspot.ear   dest=/tmp/{{ build_version }}
     - local_action: get_url url=http://homepages.cs.ncl.ac.uk/jacek.cala/LVL-eSC/builds/{{ build_version }}/monitor.ear   dest=/tmp/{{ build_version }}
     # Get the server dump data
+    - local_action: file path=/tmp/{{ dump_version }}/dump state=directory
     - local_action: get_url url=http://homepages.cs.ncl.ac.uk/jacek.cala/LVL-eSC/dumps/{{ dump_version }}/eSC-blobStore.tgz   dest=/tmp/{{ dump_version }}/dump
     - local_action: get_url url=http://homepages.cs.ncl.ac.uk/jacek.cala/LVL-eSC/dumps/{{ dump_version }}/eSC-neo4jDump.tgz   dest=/tmp/{{ dump_version }}/dump
     - local_action: get_url url=http://homepages.cs.ncl.ac.uk/jacek.cala/LVL-eSC/dumps/{{ dump_version }}/connexience.dump    dest=/tmp/{{ dump_version }}/dump
@@ -48,7 +50,8 @@ configure esc_server_init (
     #- local_actian: get_url url=https://github.com/eubrazilcc/e-SC-IM/archive/master.zip dest=/tmp/master.zip
     #- local_action: unarchive src=/tmp/master.zip dest=/tmp/{{ repo_version }}/
     #- local_action: file path=/etc/ansible/roles state=directory
-    #- local_action: command mv /tmp/{{ repo_version }}/e-SC-IM-master/ansible/roles/* /etc/ansible/roles/    
+    #- local_action: command mv /tmp/{{ repo_version }}/e-SC-IM-master/ansible/roles/* /etc/ansible/roles/
+    - local_action: apt name=subversion state=present
     - local_action: command svn export --force https://github.com/eubrazilcc/e-SC-IM/trunk/ansible/roles /etc/ansible/roles
 @end
 )
