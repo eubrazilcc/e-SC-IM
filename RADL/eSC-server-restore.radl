@@ -31,20 +31,23 @@ configure esc_server_init (
 - vars:
     dump_version:  20150717-093413
     build_version: 20150710-0915
-    #repo_version:  5db61669f5f4d2cf6efa7ff10207ad65102931c2
+    url_base: http://homepages.cs.ncl.ac.uk/jacek.cala/LVL-eSC
   tasks:
+    # Get some common data
+    - local_action: file path=/tmp/eSC-common state=absent
+    - local_action: file path=/tmp/eSC-common state=directory
+    - local_action: get_url url={{ url_base }}/builds/common/jboss-as-7.1.3.final.zip   dest=/tmp/eSC-common
     # Get the main e-SC code
     - local_action: file path=/tmp/{{ build_version }} state=directory
-    - local_action: get_url url=http://homepages.cs.ncl.ac.uk/jacek.cala/LVL-eSC/builds/common/jboss-as-7.1.3.final.zip   dest=/tmp/eSC-common
-    - local_action: get_url url=http://homepages.cs.ncl.ac.uk/jacek.cala/LVL-eSC/builds/{{ build_version }}/inkspot.ear   dest=/tmp/{{ build_version }}
-    - local_action: get_url url=http://homepages.cs.ncl.ac.uk/jacek.cala/LVL-eSC/builds/{{ build_version }}/monitor.ear   dest=/tmp/{{ build_version }}
+    - local_action: get_url url={{ url_base }}/builds/{{ build_version }}/inkspot.ear   dest=/tmp/{{ build_version }}
+    - local_action: get_url url={{ url_base }}/builds/{{ build_version }}/monitor.ear   dest=/tmp/{{ build_version }}
     # Get the server dump data
     - local_action: file path=/tmp/{{ dump_version }}/dump state=directory
-    - local_action: get_url url=http://homepages.cs.ncl.ac.uk/jacek.cala/LVL-eSC/dumps/{{ dump_version }}/eSC-blobStore.tgz   dest=/tmp/{{ dump_version }}/dump
-    - local_action: get_url url=http://homepages.cs.ncl.ac.uk/jacek.cala/LVL-eSC/dumps/{{ dump_version }}/eSC-neo4jDump.tgz   dest=/tmp/{{ dump_version }}/dump
-    - local_action: get_url url=http://homepages.cs.ncl.ac.uk/jacek.cala/LVL-eSC/dumps/{{ dump_version }}/connexience.dump    dest=/tmp/{{ dump_version }}/dump
-    - local_action: get_url url=http://homepages.cs.ncl.ac.uk/jacek.cala/LVL-eSC/dumps/{{ dump_version }}/logeventsdb.dump    dest=/tmp/{{ dump_version }}/dump
-    - local_action: get_url url=http://homepages.cs.ncl.ac.uk/jacek.cala/LVL-eSC/dumps/{{ dump_version }}/performancedb.dump  dest=/tmp/{{ dump_version }}/dump
+    - local_action: get_url url={{ url_base }}/dumps/{{ dump_version }}/eSC-blobStore.tgz   dest=/tmp/{{ dump_version }}/dump
+    - local_action: get_url url={{ url_base }}/dumps/{{ dump_version }}/eSC-neo4jDump.tgz   dest=/tmp/{{ dump_version }}/dump
+    - local_action: get_url url={{ url_base }}/dumps/{{ dump_version }}/connexience.dump    dest=/tmp/{{ dump_version }}/dump
+    - local_action: get_url url={{ url_base }}/dumps/{{ dump_version }}/logeventsdb.dump    dest=/tmp/{{ dump_version }}/dump
+    - local_action: get_url url={{ url_base }}/dumps/{{ dump_version }}/performancedb.dump  dest=/tmp/{{ dump_version }}/dump
     # Get the ansible roles that can restore the server
     #- local_action: apt name=unzip state=present update_cache=yes
     #- local_action: get_url url=https://github.com/eubrazilcc/e-SC-IM/raw/master/ansible-role-esc-engine.zip dest=/tmp/esc-engine.zip
@@ -62,6 +65,7 @@ configure esc_server (
 ---
 - vars:
     dump_version:  20150717-093413
+    build_version: 20150710-0915
   roles:
     - esc-db-init
     - { role: esc-db, sudo_user: postgres }
@@ -72,14 +76,10 @@ configure esc_server (
         inkspot_dist_dir: '/tmp/{{ build_version }}',
         performance_monitor_dist_dir: '/tmp/{{ build_version }}' }
     - { role: esc-store-restore, dump_directory: '/tmp/{{ dump_version }}/dump' }
-    - { role: esc-nginx,
-        public_server_address: eubrazilcc-esc.i3m.upv.es,
-        ssl_certificate_file: eubrazilcc-esc.i3m.upv.es.cer,
-        ssl_certificate_key_file: eubrazilcc-esc.i3m.upv.es.key }
-# - roles:
-#    - esc-db-init
-#    - { role: esc-db, sudo_user: postgres }
-#    - esc-server
+    #- { role: esc-nginx,
+    #    public_server_address: eubrazilcc-esc.i3m.upv.es,
+    #    ssl_certificate_file: eubrazilcc-esc.i3m.upv.es.cer,
+    #    ssl_certificate_key_file: eubrazilcc-esc.i3m.upv.es.key }
 @end
 )
 

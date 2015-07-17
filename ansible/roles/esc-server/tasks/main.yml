@@ -51,7 +51,7 @@
   copy: src=jboss7/ dest={{ jboss_home_dir }}
 
 - name: Overwrite standalone config with {{ server_address }}
-  template: src=standalone.conf dest={{ jboss_home_dir }}/bin
+  template: src=standalone.conf dest={{ jboss_home_dir }}/bin/
 
 # Set the location of the database server
 - set_fact: db_server_address='localhost'
@@ -62,7 +62,7 @@
 
 - name: Overwrite standalone XML descriptor
   # This template requires that variable db_server_address is set correctly
-  template: src=standalone.xml dest={{ jboss_home_dir }}/standalone/configuration
+  template: src=standalone.xml dest={{ jboss_home_dir }}/standalone/configuration/
   notify: restart jboss-as
 
 - name: Change ownership of jBoss AS installation
@@ -91,7 +91,7 @@
 #
 - name: Copy the jBoss service config
   file: path=/etc/jboss-as state=directory
-- template: src=jboss-as.conf dest=/etc/jboss-as/jboss-as.conf
+- template: src=jboss-as.conf dest=/etc/jboss-as/
   notify: restart jboss-as
 
 - name: Copy the service init script
@@ -113,9 +113,10 @@
   file: state=directory path=~/.inkspot
   sudo: no
   delegate_to: localhost
+  when: prepareMavenProps is defined
 
 - name: Create the maven properties file locally
   template: src=maven.props dest=~/.inkspot/maven.props
   sudo: no
   delegate_to: localhost
-
+  when: prepareMavenProps is defined
