@@ -11,7 +11,7 @@ network private ()
 system esc_server (
 cpu.arch='x86_64' and
 cpu.count>=2 and
-memory.size>=1536m and
+memory.size>=2048m and
 net_interface.0.connection = 'public' and
 net_interface.0.dns_name = 'esc' and
 net_interface.1.connection = 'private' and
@@ -19,7 +19,7 @@ net_interface.1.dns_name = 'server' and
 disk.0.os.name='linux' and
 disk.0.os.flavour='ubuntu' and
 disk.0.os.version='14.04' and
-disk.0.size>=15000
+disks.free_size>=15GB
 # and
 # disk.0.applications contains (name='ansible.modules.cala.esc')
 )
@@ -29,19 +29,19 @@ configure esc_server_init (
 @begin
 ---
 - vars:
-    dump_version:  20150430_072234
-    build_version: 20150430_072234
-    repo_version:  5db61669f5f4d2cf6efa7ff10207ad65102931c2
+    dump_version:  20150717-093413
+    build_version: 20150710-0915
+    #repo_version:  5db61669f5f4d2cf6efa7ff10207ad65102931c2
   tasks:
     # Get the main e-SC code
-    - local_action: get_url url=http://homepages.cs.ncl.ac.uk/jacek.cala/LVL-eSC/{{ build_version }}/inkspot.ear   dest=/tmp/{{ build_version }}
-    - local_action: get_url url=http://homepages.cs.ncl.ac.uk/jacek.cala/LVL-eSC/{{ build_version }}/monitor.ear   dest=/tmp/{{ build_version }}
+    - local_action: get_url url=http://homepages.cs.ncl.ac.uk/jacek.cala/LVL-eSC/builds/{{ build_version }}/inkspot.ear   dest=/tmp/{{ build_version }}
+    - local_action: get_url url=http://homepages.cs.ncl.ac.uk/jacek.cala/LVL-eSC/builds/{{ build_version }}/monitor.ear   dest=/tmp/{{ build_version }}
     # Get the server dump data
-    - local_action: get_url url=http://homepages.cs.ncl.ac.uk/jacek.cala/LVL-eSC/{{ dump_version }}/eSC-blobStore.tgz   dest=/tmp/{{ dump_version }}/dump
-    - local_action: get_url url=http://homepages.cs.ncl.ac.uk/jacek.cala/LVL-eSC/{{ dump_version }}/eSC-neo4jDump.tgz   dest=/tmp/{{ dump_version }}/dump
-    - local_action: get_url url=http://homepages.cs.ncl.ac.uk/jacek.cala/LVL-eSC/{{ dump_version }}/connexience.dump    dest=/tmp/{{ dump_version }}/dump
-    - local_action: get_url url=http://homepages.cs.ncl.ac.uk/jacek.cala/LVL-eSC/{{ dump_version }}/logeventsdb.dump    dest=/tmp/{{ dump_version }}/dump
-    - local_action: get_url url=http://homepages.cs.ncl.ac.uk/jacek.cala/LVL-eSC/{{ dump_version }}/performancedb.dump  dest=/tmp/{{ dump_version }}/dump
+    - local_action: get_url url=http://homepages.cs.ncl.ac.uk/jacek.cala/LVL-eSC/dumps/{{ dump_version }}/eSC-blobStore.tgz   dest=/tmp/{{ dump_version }}/dump
+    - local_action: get_url url=http://homepages.cs.ncl.ac.uk/jacek.cala/LVL-eSC/dumps/{{ dump_version }}/eSC-neo4jDump.tgz   dest=/tmp/{{ dump_version }}/dump
+    - local_action: get_url url=http://homepages.cs.ncl.ac.uk/jacek.cala/LVL-eSC/dumps/{{ dump_version }}/connexience.dump    dest=/tmp/{{ dump_version }}/dump
+    - local_action: get_url url=http://homepages.cs.ncl.ac.uk/jacek.cala/LVL-eSC/dumps/{{ dump_version }}/logeventsdb.dump    dest=/tmp/{{ dump_version }}/dump
+    - local_action: get_url url=http://homepages.cs.ncl.ac.uk/jacek.cala/LVL-eSC/dumps/{{ dump_version }}/performancedb.dump  dest=/tmp/{{ dump_version }}/dump
     # Get the ansible roles that can restore the server
     #- local_action: apt name=unzip state=present update_cache=yes
     #- local_action: get_url url=https://github.com/eubrazilcc/e-SC-IM/raw/master/ansible-role-esc-engine.zip dest=/tmp/esc-engine.zip
@@ -56,11 +56,14 @@ configure esc_server_init (
 configure esc_server (
 @begin
 ---
-- roles:
+- vars:
+    dump_version:  20150717-093413
+  roles:
     - esc-db-init
-    - { role: esc-db, sudo_user: postgres }
+    #- { role: esc-db, sudo_user: postgres }
+    - { role: esc-db-restore, dump_directory: '/tmp/{{ dump_version }}/dump', sudo_user: postgres }
     - { role: esc-server, isJbossStartAllowed: False }
-    - esc-store-restore
+    - { role: esc-store-restore, dump_directory: '/tmp/{{ dump_version }}/dump' }
     - { role: esc-nginx,
         public_server_address: eubrazilcc-esc.i3m.upv.es,
         ssl_certificate_file: eubrazilcc-esc.i3m.upv.es.cer,
