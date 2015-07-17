@@ -1,0 +1,53 @@
+---
+# e-Science Central
+# Copyright (C) 2008-2015 School of Computing Science, Newcastle University
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# version 2 as published by the Free Software Foundation at:
+# http://www.gnu.org/licenses/gpl-2.0.html
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA.
+
+#
+# Tasks preparing postgres to run the e-Science Central server
+#
+- name: Create the database user
+  postgresql_user: name={{ db_user }} password={{ db_password }}
+
+- name: Create databeses required by the server
+  postgresql_db: name=connexience   encoding='UTF-8' owner={{ db_user }} state=present
+- postgresql_db: name=logeventsdb   encoding='UTF-8' owner={{ db_user }} state=present
+- postgresql_db: name=performancedb encoding='UTF-8' owner={{ db_user }} state=present
+
+# Set the location of the e-SC server
+- set_fact: internal_server_address='localhost'
+  when: "'esc_server' in group_names"
+- set_fact: internal_server_address={{ item }}
+  with_items: groups.esc_server
+  when: "'esc_server' not in group_names"
+
+- name: Detect postgres version running
+  shell: find /usr/lib -path '*/bin/postgres' | xargs dirname | xargs dirname | xargs basename
+  register: pg_version_dir
+  changed_when: False
+
+- name: Fail if this is not a supported version of postgres -- 8.0-9.4
+  fail: msg="Unsupported postgres version {{ pg_version_dir.stdout }}"
+  when: pg_version_dir.stdout | match("(?!^8\.[0-9]+$|^9\.[0-4]$)")
+
+- name: Configure access to postgres DBs
+  template: src=pg_hba.conf dest=/etc/postgresql/{{ pg_version_dir.stdout }}/main
+  notify: restart postgres
+
+- name: Make sure postgres starts at boot
+  service: name=postgresql enabled=yes state=started 
+  sudo_user: root
+

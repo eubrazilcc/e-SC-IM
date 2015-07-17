@@ -63,7 +63,7 @@ configure esc_server (
     dump_version:  20150717-093413
   roles:
     - esc-db-init
-    #- { role: esc-db, sudo_user: postgres }
+    - { role: esc-db, sudo_user: postgres }
     - { role: esc-db-restore, dump_directory: '/tmp/{{ dump_version }}/dump', sudo_user: postgres }
     - { role: esc-server, isJbossStartAllowed: False }
     - { role: esc-store-restore, dump_directory: '/tmp/{{ dump_version }}/dump' }
