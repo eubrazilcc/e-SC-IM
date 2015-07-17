@@ -44,7 +44,7 @@
   when: pg_version_dir.stdout | match("(?!^8\.[0-9]+$|^9\.[0-4]$)")
 
 - name: Configure access to postgres DBs
-  template: src=pg_hba.conf dest=/etc/postgresql/{{ pg_version_dir.stdout }}/main
+  template: src=pg_hba.conf dest=/etc/postgresql/{{ pg_version_dir.stdout }}/main/
   notify: restart postgres
 
 - name: Make sure postgres starts at boot
