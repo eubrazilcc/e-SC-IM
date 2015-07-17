@@ -55,10 +55,10 @@
 
 # Set the location of the database server
 - set_fact: db_server_address='localhost'
-  when: "'db_server' in group_names"
+  when: db_server_address is not defined and "'db_server' in group_names"
 - set_fact: db_server_address={{ item }}
   with_items: groups.db_server
-  when: "'db_server' not in group_names"
+  when: db_server_address is not defined and "'db_server' not in group_names"
 
 - name: Overwrite standalone XML descriptor
   # This template requires that variable db_server_address is set correctly
