@@ -34,7 +34,6 @@ configure esc_server_init (
     url_base: http://homepages.cs.ncl.ac.uk/jacek.cala/LVL-eSC
   tasks:
     # Get some common data
-    - local_action: file path=/tmp/eSC-common state=absent
     - local_action: file path=/tmp/eSC-common state=directory
     - local_action: get_url url={{ url_base }}/builds/common/jboss-as-7.1.3.final.zip   dest=/tmp/eSC-common
     # Get the main e-SC code
@@ -74,7 +73,8 @@ configure esc_server (
         isJbossStartAllowed: False,
         jboss_dist_dir: '/tmp/eSC-common',
         inkspot_dist_dir: '/tmp/{{ build_version }}',
-        performance_monitor_dist_dir: '/tmp/{{ build_version }}' }
+        performance_monitor_dist_dir: '/tmp/{{ build_version }}',
+        db_server_address: localhost }
     - { role: esc-store-restore, dump_directory: '/tmp/{{ dump_version }}/dump' }
     #- { role: esc-nginx,
     #    public_server_address: eubrazilcc-esc.i3m.upv.es,

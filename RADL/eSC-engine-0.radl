@@ -3,8 +3,8 @@ network private ()
 
 system engine_0 (
   cpu.arch='x86_64' and
-  cpu.count>=1 and
-  memory.size>=1536m and
+  cpu.count>=16 and
+  memory.size>=3072m and
   net_interface.0.connection = 'public' and
   net_interface.0.dns_name = 'engine-0' and
   net_interface.1.connection = 'private' and
@@ -18,11 +18,12 @@ configure engine_init (
 @begin
 ---
 - vars:
-    build_version: 20150710-0915
+    url_base: http://homepages.cs.ncl.ac.uk/jacek.cala/LVL-eSC
+    build_version: 20150720-1549
   tasks:
     # Get the engine code
     - local_action: file path=/tmp/esc/{{ build_version }} state=directory
-    - local_action: get_url url=http://homepages.cs.ncl.ac.uk/jacek.cala/LVL-eSC/{{ build_version }}/engine-package.zip dest=/tmp/esc/{{ build_version }}/engine-package.zip
+    - local_action: get_url url={{ url_base }}/builds/{{ build_version }}/engine-package.zip dest=/tmp/esc/{{ build_version }}/engine-package.zip
     # Get the ansible roles that can install engine
     - local_action: apt name=subversion state=present
     - local_action: file path=/etc/ansible/roles state=directory
@@ -34,7 +35,7 @@ configure engine (
 @begin
 ---
 - vars:
-    build_version: 20150710-0915
+    build_version: 20150720-1549
   roles:
     - { role: esc-engine, server_address: 10.0.0.4, allow_sudo_apt: True, engine_dist_dir: "/tmp/esc/{{ build_version }}" }
 @end

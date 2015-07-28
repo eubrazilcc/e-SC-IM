@@ -1,0 +1,35 @@
+
+network public (outbound = 'yes')
+network private ()
+
+system esc_server (
+)
+
+configure esc_server_init (
+@begin
+---
+- tasks:
+    - local_action: command svn export --force https://github.com/eubrazilcc/e-SC-IM/trunk/ansible/roles /etc/ansible/roles
+@end
+)
+
+configure esc_server (
+@begin
+---
+- vars:
+    dump_version:  20150717-093413
+    build_version: 20150710-0915
+  roles:
+    - { role: esc-server,
+        isJbossStartAllowed: False,
+        jboss_dist_dir: '/tmp/eSC-common',
+        inkspot_dist_dir: '/tmp/{{ build_version }}',
+        performance_monitor_dist_dir: '/tmp/{{ build_version }}',
+        db_server_address: localhost }
+@end
+)
+
+contextualize (
+    system esc_server configure esc_server_init step 1
+    system esc_server configure esc_server step 2
+)

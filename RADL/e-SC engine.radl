@@ -1,26 +1,43 @@
 network public (outbound = 'yes')
+network private ()
 
-system engine (
-cpu.arch='x86_64' and
-cpu.count>=1 and
-memory.size>=1536m and
-net_interface.0.connection = 'public' and
-net_interface.0.dns_name = 'engine-#N#' and
-disk.0.os.name='linux' and
-disk.0.os.flavour='ubuntu' and
-disk.0.os.version='14.04'
+system engine_0 (
+  cpu.arch='x86_64' and
+  cpu.count>=16 and
+  memory.size>=1536m and
+  net_interface.0.connection = 'public' and
+  net_interface.0.dns_name = 'engine-0' and
+  net_interface.1.connection = 'private' and
+  net_interface.1.dns_name = 'engine-X' and
+  disk.0.os.name='linux' and
+  disk.0.os.flavour='ubuntu' and
+  disk.0.os.version='14.04'
 )
 
+system engine_N (
+  cpu.arch='x86_64' and
+  cpu.count>=4 and
+  memory.size>=1536m and
+  net_interface.0.connection = 'private' and
+  net_interface.0.dns_name = 'engine-#N#' and
+  disk.0.os.name='linux' and
+  disk.0.os.flavour='ubuntu' and
+  disk.0.os.version='14.04'
+)
 
 configure engine_init (
 @begin
 ---
-- tasks:
-    - local_action: apt name=unzip state=present update_cache=yes
-    - local_action: get_url url=https://github.com/eubrazilcc/e-SC-IM/archive/master.zip dest=/tmp/eSC-master.zip
-    - local_action: unarchive src=/tmp/eSC-master.zip dest=/tmp copy=no
+- vars:
+    build_version: 20150604-190340
+  tasks:
+    # Get the engine code
+    - local_action: file path=/tmp/esc/{{ build_version }} state=directory
+    - local_action: get_url url=http://homepages.cs.ncl.ac.uk/jacek.cala/LVL-eSC/{{ build_version }}/engine-package.zip dest=/tmp/esc/{{ build_version }}/engine-package.zip
+    # Get the ansible roles that can install engine
+    - local_action: apt name=subversion state=present
     - local_action: file path=/etc/ansible/roles state=directory
-    - local_action: shell mv -f /tmp/e-SC-IM-master/ansible/roles/* /etc/ansible/roles
+    - local_action: command svn export --force https://github.com/eubrazilcc/e-SC-IM/trunk/ansible/roles/esc-engine /etc/ansible/roles/esc-engine
 @end
 )
 
@@ -28,13 +45,16 @@ configure engine (
 @begin
 ---
 - roles:
-    - { role: esc-engine, server_address: eubrazilcc-esc.i3m.upv.es, allow_sudo_apt: True }
+    - { role: esc-engine, server_address: 10.0.0.4, allow_sudo_apt: True, engine_dist_dir: /tmp/esc/20150604-190340 }
 @end
 )
 
-deploy engine @input.VMs@
+deploy engine_0 1
+deploy engine_N @input.VMs@
 
 contextualize (
-    system engine configure engine_init step 1
-    system engine configure engine step 2
+    system engine_0 configure engine_init step 1
+    system engine_N configure engine_init step 1
+    system engine_0 configure engine step 2
+    system engine_N configure engine step 2
 )
