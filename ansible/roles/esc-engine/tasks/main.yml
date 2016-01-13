@@ -21,6 +21,10 @@
   with_items:
     - unzip
     - openjdk-7-jre-headless
+    - ntp
+
+- name: Make sure the NTP service is started
+  service: name=ntp state=started
 
 - name: Add group "esc"
   group: name=esc

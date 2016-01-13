@@ -18,8 +18,8 @@
                     <Parameter Name="InvocationStorageDir"  Value="/mnt/workflow/invocations" Type="String" Description="Directory to use as workflow scratch space" />
                 </Parameter>
                 <Parameter AutoAdd="true" Name="Engine" Type="XmlDataStore">
-                    <Parameter Name="APIHost"     Value="{{server_address}}"  Type="String" Description="Name of the server providing API service" />
-                    <Parameter Name="APIPort"     Value="8080"  Type="Integer" Description="Port on the server providing API service" />
+                    <Parameter Name="APIHost"     Value="{{ server_address | default('localhost') }}"  Type="String" Description="Name of the server providing API service" />
+                    <Parameter Name="APIPort"     Value="{{ api_port | default(8080) }}"  Type="Integer" Description="Port on the server providing API service" />
                     <Parameter Name="APIContext"  Value="/workflow"  Type="String" Description="Base URL on the server providing API service" />
 
                     <Parameter Name="ServiceLibraryDir"  Value="/mnt/workflow/library" Type="String" Description="Directory to store downloaded services in" />
@@ -35,8 +35,8 @@
                     <Parameter Name="SingleVMPerWorkflow"          Value="true" Type="Boolean" Description="Should the engine run all of a workflows services in a single VM"/>
                     <Parameter Name="SingleVMCreationTimeout"      Value="60" Type="Integer" Description="Length of time (in seconds) to wait for the single service VM to start" />
 
-                    <Parameter Name="AllowRMI"         Value="true" Type="Boolean" Description="Set to allow the server to attempt RMI communications" />
-                    <Parameter Name="RMIRegistryPort"  Value="2199" Type="Integer" Description="Port of the RMI registry on the server" />
+                    <Parameter Name="AllowRMI"         Value="{{ allow_rmi | default('true') }}" Type="Boolean" Description="Set to allow the server to attempt RMI communications" />
+                    <Parameter Name="RMIRegistryPort"  Value="{{ rmiregistry_port | default(2199) }}" Type="Integer" Description="Port of the RMI registry on the server" />
 
                     <Parameter Name="UseJMSToSendUpdates"     Value="true" Type="Boolean" Description="Should the API clients use JMS to send non-blocking updates where possible" />
                     <Parameter Name="EnableInformationCache"  Value="true" Type="Boolean" Description="Should the engine enable the various information caches to reduce server calls" />
@@ -45,8 +45,8 @@
                 <Parameter AutoAdd="true" Name="Performance" Type="XmlDataStore">
                     <Parameter Name="Enabled"  Value="true" Type="Boolean" />
 
-                    <Parameter Name="JMSServerHost"  Value="{{server_address}}" Type="String" />
-                    <Parameter Name="JMSServerPort"  Value="5445" Type="Integer" />
+                    <Parameter Name="JMSServerHost"  Value="{{ server_address | default('localhost') }}" Type="String" />
+                    <Parameter Name="JMSServerPort"  Value="{{ jms_port | default(5445) }}" Type="Integer" />
                     <Parameter Name="JMSUser"        Value="connexience" Type="String" />
                     <Parameter Name="JMSPassword"    Value="1234" Type="String" />
 
@@ -56,8 +56,8 @@
                     <Parameter Name="SendEngineDataWhenIdle"    Value="true" Type="Boolean" />
                 </Parameter>
                 <Parameter AutoAdd="true" Name="JMS" Type="XmlDataStore">
-                    <Parameter Name="JMSServer"    Value="{{server_address}}"   Type="String" Description="JMS server address" />
-                    <Parameter Name="JMSPort"      Value="5445"        Type="Integer" Description="JMS communication port" />
+                    <Parameter Name="JMSServer"    Value="{{ server_address | default('localhost')}}"   Type="String" Description="JMS server address" />
+                    <Parameter Name="JMSPort"      Value="{{ jms_port | default(5445) }}"        Type="Integer" Description="JMS communication port" />
                     <Parameter Name="JMSUser"      Value="connexience" Type="String" Description="JMS user" />
                     <Parameter Name="JMSPassword"  Value="1234"        Type="String" Description="JMS password" />
 
@@ -69,8 +69,8 @@
                 <Parameter AutoAdd="true" Name="Provenance" Type="XmlDataStore">
                     <Parameter Name="Enabled" Type="Boolean" Value="true" Description="Should JMS Messages be sent to the provenance server" />
 
-                    <Parameter Name="JMSServerHost"  Value="{{server_address}}"  Type="String" Description="Host of the JMS Server" />
-                    <Parameter Name="JMSServerPort"  Value="5445"  Type="Integer" Description="Port of the JMS Server" />
+                    <Parameter Name="JMSServerHost"  Value="{{ server_address | default('localhost') }}"  Type="String" Description="Host of the JMS Server" />
+                    <Parameter Name="JMSServerPort"  Value="{{ jms_port | default(5445) }}"  Type="Integer" Description="Port of the JMS Server" />
                     <Parameter Name="JMSUser"        Value="connexience"  Type="String" Description="Username of the JMS Queue" />
                     <Parameter Name="JMSPassword"    Value="1234"  Type="String" Description="Password for the JMS Queue" />
                 </Parameter>
