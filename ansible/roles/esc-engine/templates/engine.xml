@@ -43,7 +43,7 @@
                 <Parameter AutoAdd="true" Name="Performance" Type="XmlDataStore">
                     <Parameter Name="Enabled"  Value="true" Type="Boolean" />
 
-                    <Parameter Name="JMSServerHost"  Value="{{ server_address | default('localhost') }}" Type="String" />
+                    <Parameter Name="JMSServerHost"  Value="{{ jms_server_address | default('localhost') }}" Type="String" />
                     <Parameter Name="JMSServerPort"  Value="{{ jms_port | default(5445) }}" Type="Integer" />
                     <Parameter Name="JMSUser"        Value="connexience" Type="String" />
                     <Parameter Name="JMSPassword"    Value="1234" Type="String" />
@@ -54,7 +54,7 @@
                     <Parameter Name="SendEngineDataWhenIdle"    Value="true" Type="Boolean" />
                 </Parameter>
                 <Parameter AutoAdd="true" Name="JMS" Type="XmlDataStore">
-                    <Parameter Name="JMSServer"    Value="{{ server_address | default('localhost')}}"   Type="String" Description="JMS server address" />
+                    <Parameter Name="JMSServer"    Value="{{ jms_server_address | default('localhost')}}"   Type="String" Description="JMS server address" />
                     <Parameter Name="JMSPort"      Value="{{ jms_port | default(5445) }}"        Type="Integer" Description="JMS communication port" />
                     <Parameter Name="JMSUser"      Value="connexience" Type="String" Description="JMS user" />
                     <Parameter Name="JMSPassword"  Value="1234"        Type="String" Description="JMS password" />
@@ -67,7 +67,7 @@
                 <Parameter AutoAdd="true" Name="Provenance" Type="XmlDataStore">
                     <Parameter Name="Enabled" Type="Boolean" Value="true" Description="Should JMS Messages be sent to the provenance server" />
 
-                    <Parameter Name="JMSServerHost"  Value="{{ server_address | default('localhost') }}"  Type="String" Description="Host of the JMS Server" />
+                    <Parameter Name="JMSServerHost"  Value="{{ jms_server_address | default('localhost') }}"  Type="String" Description="Host of the JMS Server" />
                     <Parameter Name="JMSServerPort"  Value="{{ jms_port | default(5445) }}"  Type="Integer" Description="Port of the JMS Server" />
                     <Parameter Name="JMSUser"        Value="connexience"  Type="String" Description="Username of the JMS Queue" />
                     <Parameter Name="JMSPassword"    Value="1234"  Type="String" Description="Password for the JMS Queue" />

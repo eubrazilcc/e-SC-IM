@@ -39,33 +39,34 @@ engine_dist_dir: ../../../../../code/webflow/WorkflowEngine/target/
 #
 # The server base URL used by the engine to connect via the REST API
 #
-#server_baseurl: http://localhost:8080
+server_baseurl: https://eubrazilcc-esc.i3m.upv.es
 
 #
-# The address of the JMS server. Usually the same as server_baseurl. Might be
-# different if the server_baseurl is available via a proxy.
+# The address of the JMS server. Usually should be the same as the hostname in
+# server_baseurl. Might be different if the server_baseurl is available via
+# a proxy but JMS is not.
 #
-#server_address: localhost
+jms_server_address: eubrazilcc-esc.i3m.upv.es
+
+#
+# The port on which JMS server listens to.
+#
+jms_port: 5005
 
 #
 # The maximum number of threads running workflow invocations on each engine.
 # It's used to set both MaxWorkflowCount and MaxConcurrentServiceInvocations in engine.xml.
 #
-#max_invocation_threads: 10
+max_invocation_threads: 4
 
 #
 # Whether to allow engine to use RMI to connect to the server. If set to False,
 # the engine will use JMS.
 #
-#allow_rmi: True
+allow_rmi: False
 
 #
 # The RMI registry port on which engine is publishing Objects via RMI.
 # If changed, needs to be updated at the server, too.
 #
 # rmiregistry_port: 2199
-
-#
-# The port on which JMS server listens to.
-#
-#jms_port: 5445

@@ -44,12 +44,12 @@
   notify: restart engine
 
 # Set the location of the e-SC server
-- debug: var=server_address
-- set_fact: server_address='localhost'
-  when: "server_address is not defined and 'esc_server' in group_names"
-- set_fact: server_address={{ item }}
+- debug: var=jms_server_address
+- set_fact: jms_server_address='localhost'
+  when: "jms_server_address is not defined and 'esc_server' in group_names"
+- set_fact: jms_server_address={{ item }}
   with_items: groups.esc_server
-  when: "server_address is not defined and 'esc_server' not in group_names"
+  when: "jms_server_address is not defined and 'esc_server' not in group_names"
 
 - name: Copy the engine's init script
   copy: src=init.d/eSC-engine dest=/etc/init.d/eSC-engine mode=0755
