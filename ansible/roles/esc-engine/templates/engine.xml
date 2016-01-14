@@ -9,8 +9,8 @@
         <Parameter AutoAdd="false" Name="Properties" Type="XmlDataStore">
             <Parameter AutoAdd="false" Name="SystemProperties" Type="XmlDataStore">
                 <Parameter AutoAdd="true" Name="Workflow" Type="XmlDataStore">
-                    <Parameter Name="MaxWorkflowCount"                 Value="{{ max_invocation_threads }}"  Type="Integer" Description="Maximum number of workflow jobs this engine will take from the queue at any time" />
-                    <Parameter Name="MaxConcurrentServiceInvocations"  Value="{{ max_invocation_threads }}"  Type="Integer" Description="Maximum number of concurrent workflow services that are allowed to execute at any time" />
+                    <Parameter Name="MaxWorkflowCount"                 Value="{{ max_invocation_threads | default(10) }}"  Type="Integer" Description="Maximum number of workflow jobs this engine will take from the queue at any time" />
+                    <Parameter Name="MaxConcurrentServiceInvocations"  Value="{{ max_invocation_threads | default(10) }}"  Type="Integer" Description="Maximum number of concurrent workflow services that are allowed to execute at any time" />
 
                     <Parameter Name="DefaultMaxPermSize"    Value="256"  Type="Integer" Description="Maximum Java PermGen size in megabytes" />
                     <Parameter Name="DefaultVMSize"         Value="512"  Type="Integer" Description="Maximum JavaVM size in megabytes" />
@@ -18,9 +18,7 @@
                     <Parameter Name="InvocationStorageDir"  Value="/mnt/workflow/invocations" Type="String" Description="Directory to use as workflow scratch space" />
                 </Parameter>
                 <Parameter AutoAdd="true" Name="Engine" Type="XmlDataStore">
-                    <Parameter Name="APIHost"     Value="{{ server_address | default('localhost') }}"  Type="String" Description="Name of the server providing API service" />
-                    <Parameter Name="APIPort"     Value="{{ api_port | default(8080) }}"  Type="Integer" Description="Port on the server providing API service" />
-                    <Parameter Name="APIContext"  Value="/workflow"  Type="String" Description="Base URL on the server providing API service" />
+                    <Parameter Name="ServerBaseURL" Value="{{ server_baseurl | default('http://localhost:8080') }}" Type="String" Description="Base URL of the server" />
 
                     <Parameter Name="ServiceLibraryDir"  Value="/mnt/workflow/library" Type="String" Description="Directory to store downloaded services in" />
                     <Parameter Name="TemporaryDir"       Value="/mnt/workflow/temp" Type="String" Description="Directory to store temporary files; if unset a system dependent default temporary-file directory will be used" />

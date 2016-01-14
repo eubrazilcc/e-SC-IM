@@ -86,9 +86,16 @@
   template: src=engine.conf dest={{ home_dir }}/etc/ group=esc owner=esc-eng
   notify: restart engine
 
+- name: Copy keystore to access the server via HTTPS
+  local_action: stat path="certs.jks"
+  register: certs_result
+- copy: src=certs.jks dest={{ home_dir }}/etc/ group=esc owner=esc-eng mode=0400
+  when: certs_result | success
+  notify: restart engine
+
 - name: Allow engine to install system-wide packages
   copy: src=esc-eng_apt_sudoers dest=/etc/sudoers.d/ mode=0440
-  when: allow_sudo_apt|default(false)
+  when: allow_sudo_apt | default(false)
 
 # NOTE! There's a little hack below that will work on Ubuntu and systems with
 # compatible service management. Ansible 'service' module cannot set priorities

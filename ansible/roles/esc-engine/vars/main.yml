@@ -1,6 +1,6 @@
 ---
 # e-Science Central
-# Copyright (C) 2008-2014 School of Computing Science, Newcastle University
+# Copyright (C) 2008-2016 School of Computing Science, Newcastle University
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -27,12 +27,6 @@ home_dir: /usr/local/eSC-engine
 version: 3.1-SNAPSHOT
 
 #
-# The maximum number of threads running workflow invocations on each engine.
-# It's used to set both MaxWorkflowCount and MaxConcurrentServiceInvocations in engine.xml.
-#
-max_invocation_threads: 4
-
-#
 # Whether to allow engine to sudo to do 'apt-get install' for OS-wide packages.
 #
 #allow_sudo_apt: True
@@ -41,3 +35,37 @@ max_invocation_threads: 4
 # Place where the e-SC engine package is located
 #
 engine_dist_dir: ../../../../../code/webflow/WorkflowEngine/target/
+
+#
+# The server base URL used by the engine to connect via the REST API
+#
+#server_baseurl: http://localhost:8080
+
+#
+# The address of the JMS server. Usually the same as server_baseurl. Might be
+# different if the server_baseurl is available via a proxy.
+#
+#server_address: localhost
+
+#
+# The maximum number of threads running workflow invocations on each engine.
+# It's used to set both MaxWorkflowCount and MaxConcurrentServiceInvocations in engine.xml.
+#
+#max_invocation_threads: 10
+
+#
+# Whether to allow engine to use RMI to connect to the server. If set to False,
+# the engine will use JMS.
+#
+#allow_rmi: True
+
+#
+# The RMI registry port on which engine is publishing Objects via RMI.
+# If changed, needs to be updated at the server, too.
+#
+# rmiregistry_port: 2199
+
+#
+# The port on which JMS server listens to.
+#
+#jms_port: 5445
