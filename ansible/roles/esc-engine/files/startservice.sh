@@ -14,6 +14,8 @@ LIBDIR="-Djava.library.path=$DIR/lib"
 #
 unset DEBUG
 unset ENGINE_CONF
+unset SECCONF
+unset RMICONF
 
 while getopts "c:d:l:" OPTION
 do
@@ -39,7 +41,15 @@ do
   esac
 done
 
-java $DEBUG $LIBDIR $LOGCONF -cp "$DIR/../lib/*" com.connexience.server.workflow.cloud.CloudWorkflowEngine $ENGINE_CONF &
+CERT_FILE="$DIR/../etc/certs.jks"
+if [ -f $CERT_FILE ] ; then
+    SECCONF="-Djavax.net.ssl.trustStore=$CERT_FILE -Djavax.net.ssl.trustStorePassword=nopass"
+fi
+
+RMICONF=-Djava.rmi.server.hostname=localhost
+
+echo Command to run: java $DEBUG $LIBDIR $RMICONF $SECCONF $LOGCONF -cp "$DIR/../lib/*" com.connexience.server.workflow.cloud.CloudWorkflowEngine $ENGINE_CONF
+java $DEBUG $LIBDIR $RMICONF $SECCONF $LOGCONF -cp "$DIR/../lib/*" com.connexience.server.workflow.cloud.CloudWorkflowEngine $ENGINE_CONF &
 ENGINE_PID=$!
 
 echo Engine config: $ENGINE_CONF
