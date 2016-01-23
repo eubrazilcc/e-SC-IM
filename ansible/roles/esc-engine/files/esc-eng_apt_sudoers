@@ -3,3 +3,4 @@
 #
 
 esc-eng ALL=(root) NOPASSWD: /usr/bin/apt-get
+esc-eng ALL=(root) NOPASSWD: /usr/bin/dpkg
